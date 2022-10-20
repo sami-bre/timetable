@@ -18,11 +18,30 @@ void main() async {
         clientId:
             "789207632368-ta1cggn7hsfq7gsj681b8h00sgfj0o44.apps.googleusercontent.com"),
   ]);
-  runApp(const MyApp());
+  runApp(const App());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class App extends StatefulWidget {
+  const App({super.key});
+
+  // this is a really important static method that allows
+  // me to get a refrence of the state of this (root) widget.
+  static AppState of(BuildContext context) {
+    return context.findAncestorStateOfType<AppState>()!;
+  }
+
+  @override
+  State<App> createState() => AppState();
+}
+
+class AppState extends State<App> {
+  ThemeMode themeMode = ThemeMode.system;
+
+  void changeTheme(ThemeMode themeMode) {
+    setState(() {
+      this.themeMode = themeMode;
+    });
+  }
 
   // This widget is the root of your application.
   @override
@@ -35,13 +54,12 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/sign-in': (context) => const Gate()
       },
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-      ),
+      themeMode: themeMode,
+      theme: ThemeData.light().copyWith(primaryColor: Colors.pink[800]),
+      darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.pink[800]),
     );
   }
 }
-
 
 class Gate extends StatelessWidget {
   const Gate({super.key});
@@ -59,4 +77,3 @@ class Gate extends StatelessWidget {
     );
   }
 }
-

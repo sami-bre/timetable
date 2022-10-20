@@ -1,3 +1,4 @@
+import 'package:class_scheduler/ui/drawer.dart';
 import 'package:class_scheduler/util/converter.dart';
 import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,6 +11,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const MyDrawer(),
       appBar: AppBar(
         title: const Text('Class?'),
         actions: [
