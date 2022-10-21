@@ -47,6 +47,13 @@ class Converter {
   static String formattedTime(int hour, int minute) {
     /// hour should be in [0,23]
     /// minute should be in [0, 59]
+    // if the minutes are more than 60 ...
+    hour += minute ~/ 60;
+    minute %= 60;
+    // if the newly added hour goes into the next day ...
+    if (hour > 23) {
+      throw Exception("Time overflowed into the next day.");
+    }
     int formattedHour = hour;
     dynamic formattedMinute = minute;
     var amPm = 'am';
