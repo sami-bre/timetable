@@ -4,6 +4,8 @@ import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../models/schedule.dart';
+
 class HomePage extends StatelessWidget {
   HomePage({super.key});
   User user = FirebaseAuth.instance.currentUser!;
@@ -45,12 +47,15 @@ class HomePage extends StatelessWidget {
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 var schedule = snapshot.data![index];
-                String timeStart =
-                    Converter.timeOfDayToString(schedule.startTime);
-                String timeEnd = Converter.timeOfDayToString(schedule.endTime);
+                String startTimeString = Converter.formattedTime(
+                    schedule.startHour, schedule.startMinute);
+                String endTimeString = Converter.formattedTime(
+                    schedule.startHour,
+                    schedule.startMinute + schedule.durationMinute);
                 return ListTile(
                   title: Text('${schedule.course} - ${schedule.teacher}'),
-                  subtitle: Text('${schedule.day.name}: $timeStart - $timeEnd'),
+                  subtitle: Text(
+                      '${dayNames[schedule.day]}: $startTimeString - $endTimeString'),
                 );
               },
             );

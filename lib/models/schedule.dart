@@ -4,14 +4,25 @@ import '../util/converter.dart';
 
 enum Day { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
 
+List<String> dayNames = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
 class Schedule {
   String? id;
   String department;
   String teacher;
   String course;
-  Day day;
-  TimeOfDay startTime;
-  TimeOfDay endTime;
+  int day;
+  int startHour;
+  int startMinute;
+  int durationMinute;
 
   Schedule({
     this.id,
@@ -19,8 +30,9 @@ class Schedule {
     required this.teacher,
     required this.course,
     required this.day,
-    required this.startTime,
-    required this.endTime,
+    required this.startHour,
+    required this.startMinute,
+    required this.durationMinute,
   });
 
   Schedule.fromMap(Map<String, dynamic> map)
@@ -28,9 +40,10 @@ class Schedule {
         department = map['department'],
         teacher = map['teacher'],
         course = map['course'],
-        day = Converter.stringToDayEnum(map['day']),
-        startTime = Converter.stringToTimeOfDay(map['start_time']),
-        endTime = Converter.stringToTimeOfDay(map['end_time']);
+        day = map['day'],
+        startHour = map['start_hour'],
+        startMinute = map['start_minute'],
+        durationMinute = map['duration_minute'];
 
   toMap() {
     return {
@@ -38,9 +51,10 @@ class Schedule {
       'department': department,
       'teacher': teacher,
       'course': course,
-      'day': day.name,
-      'start_time': Converter.timeOfDayToString(startTime),
-      'end_time': Converter.timeOfDayToString(endTime),
+      'day': day,
+      'start_hour': startHour,
+      'start_minute': startMinute,
+      'duration_minute': durationMinute,
     };
   }
 }

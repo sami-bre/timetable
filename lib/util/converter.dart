@@ -43,4 +43,25 @@ class Converter {
     if (minute == 0) minute = "00";
     return "$hour:$minute $amPm";
   }
+
+  static String formattedTime(int hour, int minute) {
+    /// hour should be in [0,23]
+    /// minute should be in [0, 59]
+    int formattedHour = hour;
+    dynamic formattedMinute = minute;
+    var amPm = 'am';
+    // formatting the hour and amPm thing
+    if (hour == 0) {
+      formattedHour = 12;
+      amPm = 'pm';
+    } else if (hour == 12) {
+      amPm = 'pm';
+    } else if (hour > 12) {
+      formattedHour = hour - 12;
+      amPm = 'pm';
+    }
+    // formatting the minute
+    if (minute == 0) formattedMinute = "00";
+    return '$formattedHour:$formattedMinute $amPm';
+  }
 }
