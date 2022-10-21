@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-
-import '../util/converter.dart';
-
 enum Day { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
 
 List<String> dayNames = [

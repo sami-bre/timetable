@@ -6,6 +6,8 @@ import 'package:flutterfire_ui/auth.dart';
 
 import 'ui/home_page.dart';
 
+// TODO: enfore the rule that the duration of any schedule should not go into the next day.
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -35,6 +37,7 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> {
+  // this is the themeMode of the app. it switches between light and dark.
   ThemeMode themeMode = ThemeMode.system;
 
   void changeTheme(ThemeMode themeMode) {
@@ -47,6 +50,7 @@ class AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       initialRoute:
           FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
@@ -55,8 +59,8 @@ class AppState extends State<App> {
         '/sign-in': (context) => const Gate()
       },
       themeMode: themeMode,
-      theme: ThemeData.light().copyWith(primaryColor: Colors.pink[800]),
-      darkTheme: ThemeData.dark().copyWith(primaryColor: Colors.pink[800]),
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
     );
   }
 }
