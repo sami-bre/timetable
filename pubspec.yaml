@@ -31,7 +31,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  time_planner:
+    path: ./time_planner/
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -41,7 +42,6 @@ dependencies:
   flutterfire_ui: ^0.4.3+14
   cloud_firestore: ^3.5.1
   google_sign_in: ^5.4.2
-  time_planner: ^0.1.1
 
 dev_dependencies:
   flutter_test:
