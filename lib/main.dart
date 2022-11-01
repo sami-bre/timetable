@@ -1,4 +1,7 @@
 import 'package:class_scheduler/firebase_options.dart';
+import 'package:class_scheduler/ui/register.dart';
+import 'package:class_scheduler/ui/sign_in.dart';
+import 'package:class_scheduler/util/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -13,13 +16,13 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  FlutterFireUIAuth.configureProviders(const [
-    EmailProviderConfiguration(),
-    PhoneProviderConfiguration(),
-    GoogleProviderConfiguration(
-        clientId:
-            "789207632368-ta1cggn7hsfq7gsj681b8h00sgfj0o44.apps.googleusercontent.com"),
-  ]);
+  // FlutterFireUIAuth.configureProviders(const [
+  //   EmailProviderConfiguration(),
+  //   PhoneProviderConfiguration(),
+  //   GoogleProviderConfiguration(
+  //       clientId:
+  //           "789207632368-ta1cggn7hsfq7gsj681b8h00sgfj0o44.apps.googleusercontent.com"),
+  // ]);
   runApp(const App());
 }
 
@@ -52,11 +55,11 @@ class AppState extends State<App> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      initialRoute:
-          FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
+      initialRoute: '/launch',
       routes: {
-        '/home': (context) => HomePage(),
-        '/sign-in': (context) => const Gate()
+        '/sign_in': (context) => const SignInPage(),
+        '/launch': (context) => const LaunchScreen(),
+        '/register':(context) => const Registerpage(),
       },
       themeMode: themeMode,
       theme: ThemeData.light(),
@@ -65,19 +68,37 @@ class AppState extends State<App> {
   }
 }
 
-class Gate extends StatelessWidget {
-  const Gate({super.key});
+class LaunchScreen extends StatefulWidget {
+  const LaunchScreen({super.key});
+
+  @override
+  State<LaunchScreen> createState() => _LaunchScreenState();
+}
+
+class _LaunchScreenState extends State<LaunchScreen> {
+  void doRouting() {
+    String? userId = Authentication().getUserId();
+    if (userId != null) {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => HomePage(userId),
+      ));
+    } else {
+      Navigator.of(context).pushReplacementNamed('/sign_in');
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SignInScreen(
-      actions: [
-        AuthStateChangeAction((context, state) {
-          if (state is SignedIn) {
-            Navigator.of(context).pushReplacementNamed('/home');
-          }
-        })
-      ],
+    Future.delayed(const Duration(seconds: 1)).then((value) => doRouting());
+    return const Scaffold(
+      body: Center(
+        child: SizedBox(
+          width: 60,
+          height: 60,
+          child: CircularProgressIndicator(),
+        ),
+      ),
     );
   }
 }

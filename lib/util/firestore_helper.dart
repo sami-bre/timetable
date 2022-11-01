@@ -1,4 +1,5 @@
 import 'package:class_scheduler/models/schedule.dart';
+import 'package:class_scheduler/models/teacher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreHelper {
@@ -10,19 +11,15 @@ class FirestoreHelper {
     return fsh;
   }
 
-  Future<List<Schedule>> getSchedules() async {
-    var data = await FirebaseFirestore.instance.collection('schedules').get();
-    var raw = data.docs.map((e) => e.data());
-    var schedules = raw.map((e) => Schedule.fromMap(e));
-    return schedules.toList();
+  static void addTeacher(Teacher teacher) {
+    FirebaseFirestore.instance.collection('teachers').add(teacher.toMap());
   }
 
-  static Stream<List<Schedule>> listenToSchedules() async* {
-    await for (var snapshot
-        in FirebaseFirestore.instance.collection('schedules').snapshots()) {
-      var raw = snapshot.docs.map((e) => e.data());
-      var schedules = raw.map((e) => Schedule.fromMap(e));
-      yield schedules.toList();
-    }
+  static Future<bool> teacherUserNameAlreadyExists(String name) async {
+    var data = (await FirebaseFirestore.instance
+        .collection('teachers')
+        .where('name', isEqualTo: name)
+        .get());
+    return data.size > 0;
   }
 }

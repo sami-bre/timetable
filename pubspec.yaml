@@ -42,6 +42,7 @@ dependencies:
   flutterfire_ui: ^0.4.3+14
   cloud_firestore: ^3.5.1
   google_sign_in: ^5.4.2
+  email_validator: ^2.1.17
 
 dev_dependencies:
   flutter_test:
