@@ -235,18 +235,26 @@ class _RegisterpageState extends State<Registerpage> {
         const SizedBox(width: 10),
         ElevatedButton(
           onPressed: () async {
+            setState(() {
+              message = "";
+            });
             if (_formKey.currentState!.validate()) {
               try {
                 if (authMode == AuthMode.teacher) {
                   // make sure the username is not duplicate and register the teacher
                   if (!await FirestoreHelper.teacherUserNameAlreadyExists(
                       txtUserName.text)) {
-                    authentication.registerTeacher(
+                    String? userId = await authentication.registerTeacher(
                       txtUserName.text,
                       txtPhoneNumber.text,
                       txtEmail.text,
                       txtPassword.text,
                     );
+                    if (userId != null) {
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => HomePage(userId)));
+                    }
                   } else {
                     // we'll catch this down the road.
                     throw Exception();
@@ -255,7 +263,7 @@ class _RegisterpageState extends State<Registerpage> {
                   // registering a student
                   if (!await FirestoreHelper.studentUserNameAlreadyExists(
                       txtUserName.text)) {
-                    authentication.registerStudent(
+                    String? userId = await authentication.registerStudent(
                       txtUserName.text,
                       txtEmail.text,
                       txtPassword.text,
@@ -263,6 +271,10 @@ class _RegisterpageState extends State<Registerpage> {
                       year!,
                       int.parse(txtSection.text),
                     );
+                    if (userId != null) {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => HomePage(userId)));
+                    }
                   } else {
                     throw Exception();
                   }
@@ -275,7 +287,7 @@ class _RegisterpageState extends State<Registerpage> {
                 // if we're here, it's because the entered username already exists
                 setState(() {
                   message =
-                      "That username already exists. Please choose something else.";
+                      "That ${authMode.name} username already exists. Please choose something else.";
                 });
               }
               // if we're signed in, we push the home page
