@@ -7,6 +7,12 @@ import 'package:flutter/material.dart';
 
 enum AuthMode { student, teacher }
 
+// TODO: ADD ALL THE AVAILABLE DEPARTMENTS
+// TODO: ADD SERVER-SIDE CONTROLL OVER THE DEPARTMENT ENTRIES.
+enum Department { software, electrical, mechanical, biomedical, civil }
+
+enum Year { one, two, three, four, five, other }
+
 class Registerpage extends StatefulWidget {
   const Registerpage({super.key});
 
@@ -15,15 +21,20 @@ class Registerpage extends StatefulWidget {
 }
 
 class _RegisterpageState extends State<Registerpage> {
+  // TODO: RELEASE ALL THESE CONTROLLERS IN THE dispose METHOD
+
   TextEditingController txtEmail = TextEditingController();
   TextEditingController txtPassword = TextEditingController();
   TextEditingController txtPasswordConfirmation = TextEditingController();
   TextEditingController txtPhoneNumber = TextEditingController();
   TextEditingController txtUserName = TextEditingController();
+  TextEditingController txtSection = TextEditingController();
   AuthMode authMode = AuthMode.student;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final authentication = Authentication();
   String message = "";
+  Department? department;
+  Year? year;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +82,14 @@ class _RegisterpageState extends State<Registerpage> {
                         _buildPhoneNumberField(),
                         const SizedBox(height: 20),
                       ],
+                      if (authMode == AuthMode.student) ...[
+                        _buildDepartmentDropDown(),
+                        const SizedBox(height: 20),
+                        _buildYearDropDown(),
+                        const SizedBox(height: 20),
+                        _buildSectionField(),
+                        const SizedBox(height: 20),
+                      ],
                       if (message.isNotEmpty) ...[
                         _buildErrorMessage(),
                         const SizedBox(height: 20),
@@ -100,6 +119,109 @@ class _RegisterpageState extends State<Registerpage> {
     );
   }
 
+  Widget _buildDepartmentDropDown() {
+    return DropdownButtonFormField(
+      value: department,
+      hint: const Text('Department'),
+      items: const [
+        DropdownMenuItem(
+          value: Department.software,
+          child: Text('software'),
+        ),
+        DropdownMenuItem(
+          value: Department.electrical,
+          child: Text('electrical'),
+        ),
+        DropdownMenuItem(
+          value: Department.mechanical,
+          child: Text('mechanical'),
+        ),
+        DropdownMenuItem(
+          value: Department.biomedical,
+          child: Text('biomedical'),
+        ),
+        DropdownMenuItem(
+          value: Department.civil,
+          child: Text('civil'),
+        ),
+      ],
+      onChanged: (value) {
+        setState(() {
+          department = value;
+        });
+      },
+      validator: (value) {
+        if (department == null) {
+          return "Please choose a department";
+        }
+        return null;
+      },
+    );
+  }
+
+  _buildYearDropDown() {
+    return DropdownButtonFormField(
+      value: year,
+      hint: const Text('Year'),
+      items: const [
+        DropdownMenuItem(
+          value: Year.one,
+          child: Text('one'),
+        ),
+        DropdownMenuItem(
+          value: Year.two,
+          child: Text('two'),
+        ),
+        DropdownMenuItem(
+          value: Year.three,
+          child: Text('three'),
+        ),
+        DropdownMenuItem(
+          value: Year.four,
+          child: Text('four'),
+        ),
+        DropdownMenuItem(
+          value: Year.five,
+          child: Text('five'),
+        ),
+        DropdownMenuItem(
+          value: Year.other,
+          child: Text('other'),
+        ),
+      ],
+      validator: (value) {
+        if (value == null) {
+          return 'Please enter year';
+        }
+        return null;
+      },
+      onChanged: (value) {
+        setState(() {
+          year = value!;
+        });
+      },
+    );
+  }
+
+  Widget _buildSectionField() {
+    return TextFormField(
+      controller: txtSection,
+      keyboardType: TextInputType.number,
+      decoration: const InputDecoration(labelText: "Your section"),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return "Please Enter your section";
+        }
+        try {
+          int.parse(value);
+        } on Exception {
+          return "Please enter numbers only";
+        }
+        return null;
+      },
+    );
+  }
+
   Widget _buildActionButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -119,7 +241,6 @@ class _RegisterpageState extends State<Registerpage> {
                   // make sure the username is not duplicate and register the teacher
                   if (!await FirestoreHelper.teacherUserNameAlreadyExists(
                       txtUserName.text)) {
-                    print("yey we're here");
                     authentication.registerTeacher(
                       txtUserName.text,
                       txtPhoneNumber.text,
@@ -131,10 +252,22 @@ class _RegisterpageState extends State<Registerpage> {
                     throw Exception();
                   }
                 } else {
-                  // TODO: register a student
+                  // registering a student
+                  if (!await FirestoreHelper.studentUserNameAlreadyExists(
+                      txtUserName.text)) {
+                    authentication.registerStudent(
+                      txtUserName.text,
+                      txtEmail.text,
+                      txtPassword.text,
+                      department!,
+                      year!,
+                      int.parse(txtSection.text),
+                    );
+                  } else {
+                    throw Exception();
+                  }
                 }
               } on FirebaseAuthException catch (e) {
-                print(e);
                 setState(() {
                   message = e.message!;
                 });
@@ -144,6 +277,12 @@ class _RegisterpageState extends State<Registerpage> {
                   message =
                       "That username already exists. Please choose something else.";
                 });
+              }
+              // if we're signed in, we push the home page
+              if (authentication.getUserId() != null) {
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => HomePage(authentication.getUserId()!),
+                ));
               }
             }
           },

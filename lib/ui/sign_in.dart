@@ -4,8 +4,6 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-
-
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
 
@@ -38,6 +36,10 @@ class _SignInPageState extends State<SignInPage> {
                       _buildEmailField(),
                       const SizedBox(height: 20),
                       _buildPasswordField(),
+                      if (message.isNotEmpty) ...[
+                        _buildErrorMessage(),
+                        const SizedBox(height: 20),
+                      ],
                       const SizedBox(height: 20),
                       _buildActionButtons()
                     ],
@@ -48,6 +50,14 @@ class _SignInPageState extends State<SignInPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildErrorMessage() {
+    return Text(
+      message,
+      textAlign: TextAlign.center,
+      style: const TextStyle(color: Colors.red),
     );
   }
 
@@ -63,35 +73,36 @@ class _SignInPageState extends State<SignInPage> {
         ),
         const SizedBox(width: 10),
         ElevatedButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              // TODO: Authenticate the user
-              try {
-                Authentication()
-                    .signIn(txtEmail.text, txtPassword.text)
-                    .then((value) {
-                  if (value != null) {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => HomePage(value),
-                    ));
-                  } else {
-                    throw Exception(
-                        "Signing in didn't throw an error but uid is null");
-                  }
-                });
-              } on FirebaseAuthException catch (e) {
-                print(e);
-                setState(() {
-                  message = e.message!;
-                });
-              }
-            }
-            ;
-          },
+          onPressed: submit,
           child: const Text("Sign in"),
         ),
       ],
     );
+  }
+
+  void submit() async {
+    if (_formKey.currentState!.validate()) {
+      // TODO: Authenticate the user
+      try {
+        String? userId =
+            await Authentication().signIn(txtEmail.text, txtPassword.text);
+        if (userId != null) {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => HomePage(userId),
+          ));
+        } else {
+          throw Exception(
+            "Signing in didn't throw an error but uid is null",
+          );
+        }
+      } on FirebaseAuthException catch (e) {
+        print("we're in the catch clause");
+        // TODO: this error message is not showing up. fix it.
+        setState(() {
+          message = e.message!;
+        });
+      }
+    }
   }
 
   TextFormField _buildPasswordField() {
@@ -115,6 +126,7 @@ class _SignInPageState extends State<SignInPage> {
   TextFormField _buildEmailField() {
     return TextFormField(
       controller: txtEmail,
+      keyboardType: TextInputType.emailAddress,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return "Please enter your email";

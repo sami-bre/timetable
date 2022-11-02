@@ -1,4 +1,6 @@
+import 'package:class_scheduler/models/student.dart';
 import 'package:class_scheduler/models/teacher.dart';
+import 'package:class_scheduler/ui/register.dart';
 import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -40,5 +42,22 @@ class Authentication {
 
   String? getUserId() {
     return auth.currentUser?.uid;
+  }
+
+  Future<String?> registerStudent(
+    String userName,
+    String email,
+    String password,
+    Department department,
+    Year year,
+    int section,
+  ) async {
+    UserCredential credential = await auth.createUserWithEmailAndPassword(
+        email: email, password: password);
+    if (credential.user?.uid != null) {
+      // create a document for the student
+      FirestoreHelper.addStudent(Student(userName, email, department, year, section));
+    }
+    return credential.user?.uid;
   }
 }
