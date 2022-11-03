@@ -70,6 +70,7 @@ class FirestoreHelper {
   }
 
   static Future<List<Class>> getClassesForAStudent(User user) async {
+    // id function just makes a one time retrieval. it returns a future, not a stream.
     var raw = (await FirebaseFirestore.instance
             .collection('students')
             .doc(user.uid)
@@ -78,5 +79,18 @@ class FirestoreHelper {
         .docs;
     var classes = raw.map((e) => Class.fromMap(e.data())).toList();
     return classes;
+  }
+
+  static Stream<List<Class>> listenToClassesForAStudent(User user) async* {
+    // this function retreives updates continuously.
+    List<Class> classes;
+    await for (var data in FirebaseFirestore.instance
+        .collection('students')
+        .doc(user.uid)
+        .collection('tracked_classes')
+        .snapshots()) {
+      classes = data.docs.map((e) => Class.fromMap(e.data())).toList();
+      yield classes;
+    }
   }
 }
