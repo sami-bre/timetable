@@ -1,4 +1,3 @@
-import 'package:class_scheduler/ui/home_page.dart';
 import 'package:class_scheduler/ui/student_home_page.dart';
 import 'package:class_scheduler/ui/teacher_home_page.dart';
 import 'package:class_scheduler/util/authentication.dart';

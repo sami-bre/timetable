@@ -9,8 +9,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 
-import 'ui/home_page.dart';
-
 // TODO: enfore the rule that the duration of any schedule should not go into the next day.
 
 void main() async {

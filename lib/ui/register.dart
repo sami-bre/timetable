@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:class_scheduler/ui/home_page.dart';
 import 'package:class_scheduler/util/authentication.dart';
 import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:email_validator/email_validator.dart';
