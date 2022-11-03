@@ -1,6 +1,8 @@
 import 'package:class_scheduler/firebase_options.dart';
 import 'package:class_scheduler/ui/register.dart';
 import 'package:class_scheduler/ui/sign_in.dart';
+import 'package:class_scheduler/ui/student_home_page.dart';
+import 'package:class_scheduler/ui/teacher_home_page.dart';
 import 'package:class_scheduler/util/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -59,7 +61,7 @@ class AppState extends State<App> {
       routes: {
         '/sign_in': (context) => const SignInPage(),
         '/launch': (context) => const LaunchScreen(),
-        '/register':(context) => const Registerpage(),
+        '/register': (context) => const Registerpage(),
       },
       themeMode: themeMode,
       theme: ThemeData.light(),
@@ -80,7 +82,10 @@ class _LaunchScreenState extends State<LaunchScreen> {
     String? userId = Authentication().getUserId();
     if (userId != null) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => HomePage(Authentication().getUser()!),
+        builder: (context) =>
+            (Authentication().getUser()!.email!.toLowerCase().contains('aait'))
+                ? TeacherHomePage(Authentication().getUser()!)
+                : StudentHomePage(Authentication().getUser()!),
       ));
     } else {
       Navigator.of(context).pushReplacementNamed('/sign_in');

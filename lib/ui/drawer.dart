@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../main.dart';
 
@@ -29,6 +30,16 @@ class MyDrawer extends StatelessWidget {
                   },
                 )
               ],
+            ),
+            const Divider(),
+            TextButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushReplacementNamed('/sign_in');
+              },
+              child: const Text(
+                'Sign out',
+              ),
             ),
           ],
         ),

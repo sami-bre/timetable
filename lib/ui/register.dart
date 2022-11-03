@@ -1,9 +1,14 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:class_scheduler/ui/home_page.dart';
 import 'package:class_scheduler/util/authentication.dart';
 import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'student_home_page.dart';
+import 'teacher_home_page.dart';
 
 enum AuthMode { student, teacher }
 
@@ -260,7 +265,7 @@ class _RegisterpageState extends State<Registerpage> {
             if (userId != null) {
               // ignore: use_build_context_synchronously
               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => HomePage(authentication.getUser()!)));
+                  builder: (context) => TeacherHomePage(authentication.getUser()!)));
             }
           } else {
             // we'll catch this down the road.
@@ -280,7 +285,7 @@ class _RegisterpageState extends State<Registerpage> {
             );
             if (userId != null) {
               Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => HomePage(authentication.getUser()!)));
+                  MaterialPageRoute(builder: (context) => StudentHomePage(authentication.getUser()!)));
             }
           } else {
             throw Exception();
@@ -298,11 +303,17 @@ class _RegisterpageState extends State<Registerpage> {
         });
       }
       // if we're signed in, we push the home page
-      if (authentication.getUserId() != null) {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => HomePage(authentication.getUser()!),
-        ));
-      }
+      // if (authentication.getUserId() != null) {
+      //   if (authentication.getUser()!.email!.toLowerCase().contains('aait')){
+      //       Navigator.of(context).pushReplacement(MaterialPageRoute(
+      //       builder: (context) => TeacherHomePage(authentication.getUser()!),
+      //     ));
+      //     } else {
+      //       Navigator.of(context).pushReplacement(MaterialPageRoute(
+      //       builder: (context) => StudentHomePage(authentication.getUser()!),
+      //     ));
+      //     }
+      // }
     }
   }
 

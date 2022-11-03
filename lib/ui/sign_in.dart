@@ -1,4 +1,6 @@
 import 'package:class_scheduler/ui/home_page.dart';
+import 'package:class_scheduler/ui/student_home_page.dart';
+import 'package:class_scheduler/ui/teacher_home_page.dart';
 import 'package:class_scheduler/util/authentication.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,7 +41,7 @@ class _SignInPageState extends State<SignInPage> {
                       if (message.isNotEmpty) ...[
                         _buildErrorMessage(),
                         const SizedBox(height: 20),
-                      ],
+                      ], 
                       const SizedBox(height: 20),
                       _buildActionButtons()
                     ],
@@ -87,9 +89,15 @@ class _SignInPageState extends State<SignInPage> {
         String? userId =
             await Authentication().signIn(txtEmail.text, txtPassword.text);
         if (userId != null) {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => HomePage(authentication.getUser()!),
+          if (authentication.getUser()!.email!.toLowerCase().contains('aait')){
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => TeacherHomePage(authentication.getUser()!),
           ));
+          } else {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => StudentHomePage(authentication.getUser()!),
+          ));
+          }
         } else {
           throw Exception(
             "Signing in didn't throw an error but uid is null",
