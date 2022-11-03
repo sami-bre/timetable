@@ -1,4 +1,6 @@
 import 'package:class_scheduler/ui/drawer.dart';
+import 'package:class_scheduler/ui/student_home_page.dart';
+import 'package:class_scheduler/ui/teacher_home_page.dart';
 import 'package:class_scheduler/util/converter.dart';
 import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -33,9 +35,15 @@ class HomePage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: Text((user.email!.toLowerCase().contains('aait'))
-            ? "Signed in as a teacher"
-            : "Signed in as a student"),
+        child: Builder(
+          builder: (context) {
+            if ((user.email!.toLowerCase().contains('aait'))) {
+              return TeacherHomePage(user);
+            } else {
+              return StudentHomePage(user);
+            }
+          },
+        ),
         // child: StreamBuilder(
         //   stream: FirestoreHelper.listenToSchedules(),
         //   builder: (context, snapshot) {
