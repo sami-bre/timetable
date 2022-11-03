@@ -16,13 +16,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // FlutterFireUIAuth.configureProviders(const [
-  //   EmailProviderConfiguration(),
-  //   PhoneProviderConfiguration(),
-  //   GoogleProviderConfiguration(
-  //       clientId:
-  //           "789207632368-ta1cggn7hsfq7gsj681b8h00sgfj0o44.apps.googleusercontent.com"),
-  // ]);
   runApp(const App());
 }
 
@@ -31,6 +24,7 @@ class App extends StatefulWidget {
 
   // this is a really important static method that allows
   // me to get a refrence of the state of this (root) widget.
+  // for the purpose of the dark theme functionality
   static AppState of(BuildContext context) {
     return context.findAncestorStateOfType<AppState>()!;
   }
