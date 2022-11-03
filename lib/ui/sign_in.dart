@@ -73,14 +73,14 @@ class _SignInPageState extends State<SignInPage> {
         ),
         const SizedBox(width: 10),
         ElevatedButton(
-          onPressed: submit,
+          onPressed: submitForSignIn,
           child: const Text("Sign in"),
         ),
       ],
     );
   }
 
-  void submit() async {
+  void submitForSignIn() async {
     if (_formKey.currentState!.validate()) {
       // TODO: Authenticate the user
       try {
@@ -88,7 +88,7 @@ class _SignInPageState extends State<SignInPage> {
             await Authentication().signIn(txtEmail.text, txtPassword.text);
         if (userId != null) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => HomePage(userId),
+            builder: (context) => HomePage(authentication.getUser()!),
           ));
         } else {
           throw Exception(

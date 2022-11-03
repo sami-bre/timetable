@@ -80,7 +80,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
     String? userId = Authentication().getUserId();
     if (userId != null) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => HomePage(userId),
+        builder: (context) => HomePage(Authentication().getUser()!),
       ));
     } else {
       Navigator.of(context).pushReplacementNamed('/sign_in');

@@ -8,9 +8,8 @@ import 'package:flutter/material.dart';
 import '../models/schedule.dart';
 
 class HomePage extends StatelessWidget {
-  String uid;
-  HomePage(this.uid, {super.key});
-  final User user = FirebaseAuth.instance.currentUser!;
+  User user;
+  HomePage(this.user, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +33,9 @@ class HomePage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: const Text('success!'),
+        child: Text((user.email!.toLowerCase().contains('aait'))
+            ? "Signed in as a teacher"
+            : "Signed in as a student"),
         // child: StreamBuilder(
         //   stream: FirestoreHelper.listenToSchedules(),
         //   builder: (context, snapshot) {

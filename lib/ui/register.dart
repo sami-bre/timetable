@@ -234,74 +234,76 @@ class _RegisterpageState extends State<Registerpage> {
         ),
         const SizedBox(width: 10),
         ElevatedButton(
-          onPressed: () async {
-            setState(() {
-              message = "";
-            });
-            if (_formKey.currentState!.validate()) {
-              try {
-                if (authMode == AuthMode.teacher) {
-                  // make sure the username is not duplicate and register the teacher
-                  if (!await FirestoreHelper.teacherUserNameAlreadyExists(
-                      txtUserName.text)) {
-                    String? userId = await authentication.registerTeacher(
-                      txtUserName.text,
-                      txtPhoneNumber.text,
-                      txtEmail.text,
-                      txtPassword.text,
-                    );
-                    if (userId != null) {
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => HomePage(userId)));
-                    }
-                  } else {
-                    // we'll catch this down the road.
-                    throw Exception();
-                  }
-                } else {
-                  // registering a student
-                  if (!await FirestoreHelper.studentUserNameAlreadyExists(
-                      txtUserName.text)) {
-                    String? userId = await authentication.registerStudent(
-                      txtUserName.text,
-                      txtEmail.text,
-                      txtPassword.text,
-                      department!,
-                      year!,
-                      int.parse(txtSection.text),
-                    );
-                    if (userId != null) {
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => HomePage(userId)));
-                    }
-                  } else {
-                    throw Exception();
-                  }
-                }
-              } on FirebaseAuthException catch (e) {
-                setState(() {
-                  message = e.message!;
-                });
-              } on Exception catch (e) {
-                // if we're here, it's because the entered username already exists
-                setState(() {
-                  message =
-                      "That ${authMode.name} username already exists. Please choose something else.";
-                });
-              }
-              // if we're signed in, we push the home page
-              if (authentication.getUserId() != null) {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => HomePage(authentication.getUserId()!),
-                ));
-              }
-            }
-          },
+          onPressed: submitForRegistration,
           child: const Text("Register"),
         ),
       ],
     );
+  }
+
+  void submitForRegistration() async {
+    setState(() {
+      message = "";
+    });
+    if (_formKey.currentState!.validate()) {
+      try {
+        if (authMode == AuthMode.teacher) {
+          // make sure the username is not duplicate and register the teacher
+          if (!await FirestoreHelper.teacherUserNameAlreadyExists(
+              txtUserName.text)) {
+            String? userId = await authentication.registerTeacher(
+              txtUserName.text,
+              txtPhoneNumber.text,
+              txtEmail.text,
+              txtPassword.text,
+            );
+            if (userId != null) {
+              // ignore: use_build_context_synchronously
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => HomePage(authentication.getUser()!)));
+            }
+          } else {
+            // we'll catch this down the road.
+            throw Exception();
+          }
+        } else {
+          // registering a student
+          if (!await FirestoreHelper.studentUserNameAlreadyExists(
+              txtUserName.text)) {
+            String? userId = await authentication.registerStudent(
+              txtUserName.text,
+              txtEmail.text,
+              txtPassword.text,
+              department!,
+              year!,
+              int.parse(txtSection.text),
+            );
+            if (userId != null) {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => HomePage(authentication.getUser()!)));
+            }
+          } else {
+            throw Exception();
+          }
+        }
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          message = e.message!;
+        });
+      } on Exception catch (e) {
+        // if we're here, it's because the entered username already exists
+        setState(() {
+          message =
+              "That ${authMode.name} username already exists. Please choose something else.";
+        });
+      }
+      // if we're signed in, we push the home page
+      if (authentication.getUserId() != null) {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => HomePage(authentication.getUser()!),
+        ));
+      }
+    }
   }
 
   Widget _buildErrorMessage() {
@@ -360,7 +362,10 @@ class _RegisterpageState extends State<Registerpage> {
           return "Please enter a valid email";
         }
         if (authMode == AuthMode.teacher && !value.contains("aait")) {
-          return "Please enter your AAiT provided email";
+          return "Please use your AAiT provided email";
+        }
+        if (authMode == AuthMode.student && value.contains("aait")) {
+          return "you can't use AAiT provided email as a student.";
         }
         return null;
       },
