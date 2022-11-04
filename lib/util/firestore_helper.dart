@@ -170,7 +170,10 @@ class FirestoreHelper {
         .collection('tracked_classes')
         .snapshots()) {
       classes = data.docs.map((e) => Class.fromMap(e.data())).toList();
-      
+      // we assign the ids of the class documents as ids of the Class objects.
+      for (int i = 0; i < data.docs.length; i++) {
+        classes[i].id = data.docs[i].id;
+      }
       yield classes;
     }
   }
@@ -197,6 +200,15 @@ class FirestoreHelper {
         .doc(user.uid)
         .collection('tracked_classes')
         .doc(clas.id)
-        .set(clas.toMap());
+        .set(clas.toMap()).onError((error, stackTrace) => print(stackTrace));
+  }
+
+  static void unregisterAClassForAStudent(Class clas, User user) {
+    FirebaseFirestore.instance
+        .collection('students')
+        .doc(user.uid)
+        .collection('tracked_classes')
+        .doc(clas.id)
+        .delete().onError((error, stackTrace) => print(stackTrace));
   }
 }

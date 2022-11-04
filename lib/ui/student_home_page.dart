@@ -51,10 +51,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
       initialData: const <Class>[],
       stream: FirestoreHelper.listenToClassesForAStudent(widget.user),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          print('some error coming ...');
-          print(snapshot.error);
-        }
         classes = snapshot.data ?? [];
         return TimePlanner(
             startHour: 0,
@@ -90,20 +86,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                           hour: session['start_hour'],
                           minutes: session['start_minute']),
                       minutesDuration: session['duration_minute'],
-                      child: RotatedBox(
-                        quarterTurns: 3,
-                        child: ListTile(
-                          title: Text(
-                            clas.course,
-                            textAlign: TextAlign.center,
-                          ),
-                          subtitle: Text(
-                            "${Converter.formattedTime(session['start_hour'], session['start_minute'])} - "
-                            "${Converter.formattedTime(session['start_hour'], session['start_minute'] + session['duration_minute'])}",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
+                      child: _buildSessionDisplay(clas, session),
                     ),
                   );
                 }
@@ -111,6 +94,43 @@ class _StudentHomePageState extends State<StudentHomePage> {
               return tasks;
             }.call());
       },
+    );
+  }
+
+  Widget _buildSessionDisplay(Class clas, session) {
+    // one class many sessions
+    return GestureDetector(
+      onLongPress: () => _showOptionsDialog(clas),
+      child: RotatedBox(
+        quarterTurns: 3,
+        child: ListTile(
+          title: Text(
+            clas.course,
+            textAlign: TextAlign.center,
+          ),
+          subtitle: Text(
+            "${Converter.formattedTime(session['start_hour'], session['start_minute'])} - "
+            "${Converter.formattedTime(session['start_hour'], session['start_minute'] + session['duration_minute'])}",
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showOptionsDialog(Class clas) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(clas.course),
+        content: TextButton(
+          onPressed: () {
+            FirestoreHelper.unregisterAClassForAStudent(clas, widget.user);
+            Navigator.of(context).pop();
+          },
+          child: const Text('Untrack this class'),
+        ),
+      ),
     );
   }
 }
