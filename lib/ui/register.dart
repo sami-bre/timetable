@@ -15,7 +15,7 @@ enum AuthMode { student, teacher }
 // TODO: ADD SERVER-SIDE CONTROLL OVER THE DEPARTMENT ENTRIES.
 enum Department { software, electrical, mechanical, biomedical, civil }
 
-enum Year { one, two, three, four, five, other }
+enum Year { one, two, three, four, five }
 
 class Registerpage extends StatefulWidget {
   const Registerpage({super.key});
@@ -188,10 +188,6 @@ class _RegisterpageState extends State<Registerpage> {
           value: Year.five,
           child: Text('five'),
         ),
-        DropdownMenuItem(
-          value: Year.other,
-          child: Text('other'),
-        ),
       ],
       validator: (value) {
         if (value == null) {
@@ -264,7 +260,8 @@ class _RegisterpageState extends State<Registerpage> {
             if (userId != null) {
               // ignore: use_build_context_synchronously
               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => TeacherHomePage(authentication.getUser()!)));
+                  builder: (context) =>
+                      TeacherHomePage(authentication.getUser()!)));
             }
           } else {
             // we'll catch this down the road.
@@ -283,8 +280,9 @@ class _RegisterpageState extends State<Registerpage> {
               int.parse(txtSection.text),
             );
             if (userId != null) {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => StudentHomePage(authentication.getUser()!)));
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) =>
+                      StudentHomePage(authentication.getUser()!)));
             }
           } else {
             throw Exception();

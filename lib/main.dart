@@ -1,4 +1,5 @@
 import 'package:class_scheduler/firebase_options.dart';
+import 'package:class_scheduler/ui/class_catalog.dart';
 import 'package:class_scheduler/ui/register.dart';
 import 'package:class_scheduler/ui/sign_in.dart';
 import 'package:class_scheduler/ui/student_home_page.dart';

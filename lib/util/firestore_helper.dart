@@ -6,7 +6,6 @@ import 'package:class_scheduler/models/teacher.dart';
 import 'package:class_scheduler/ui/register.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 
 class FirestoreHelper {
   static final FirestoreHelper fsh = FirestoreHelper._internal();
@@ -60,6 +59,7 @@ class FirestoreHelper {
   }
 
   static Future<void> populateClassesUnderStudentsTest() async {
+    // this helper test method registers (tracks) all classes for all students. yikes!
     var allClassesData =
         (await FirebaseFirestore.instance.collection('classes').get()).docs;
     for (var student
@@ -80,17 +80,21 @@ class FirestoreHelper {
   static Future<void> populateRandomClassesTest() async {
     var randomClasses = <Class>[];
     for (int i = 0; i < 20; i++) {
+      int dep = Random().nextInt(5);
+      int yer = Random().nextInt(5);
+      int sec = Random().nextInt(6);
+      int teach = Random().nextInt(4);
       randomClasses.add(
         Class(
           // the course
           "Course: ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i]}",
 
           /// the department
-          Department.values[Random().nextInt(5)],
+          Department.values[dep],
           // the section
-          ['1', '2', '3', '4', '5', '6'][Random().nextInt(6)],
+          ['1', '2', '3', '4', '5', '6'][sec],
           // the year
-          Year.values[Random().nextInt(6)],
+          Year.values[yer],
           // the teacher id
           [
             // these are the uids of currently registered teachers from firebase auth.
@@ -98,7 +102,9 @@ class FirestoreHelper {
             '5KxMt3WwTIeyZACL294ud1M7cSK2',
             'l1e9B4gjk6eOSe47FQrmCfww2Qw1',
             '8jfxemznh4g58Ai9dWXsoSqxf8z1',
-          ][Random().nextInt(4)],
+          ][teach],
+          // the teacher name
+          ['kabila', 'nunyat', 'tedy', 'truwerk'][teach],
           // the sessions
           Random().nextBool()
               ? [
@@ -164,7 +170,33 @@ class FirestoreHelper {
         .collection('tracked_classes')
         .snapshots()) {
       classes = data.docs.map((e) => Class.fromMap(e.data())).toList();
+      
       yield classes;
     }
+  }
+
+  static Future<List<Class>> getClasses(
+      Department department, Year year) async {
+    var raw = (await FirebaseFirestore.instance
+            .collection('classes')
+            .where('department', isEqualTo: department.name)
+            .where('year', isEqualTo: year.name)
+            .get())
+        .docs;
+    var classes = raw.map((e) => Class.fromMap(e.data())).toList();
+    // we assign id's for the classes.
+    for (int i = 0; i < raw.length; i++) {
+      classes[i].id = raw[i].id;
+    }
+    return classes;
+  }
+
+  static void registerAClassForAStudent(Class clas, User user) {
+    FirebaseFirestore.instance
+        .collection('students')
+        .doc(user.uid)
+        .collection('tracked_classes')
+        .doc(clas.id)
+        .set(clas.toMap());
   }
 }

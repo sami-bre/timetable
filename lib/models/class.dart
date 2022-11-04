@@ -8,6 +8,7 @@ class Class {
   Year year;
   String section;
   String teacherId;
+  String teacherName;
   List sessions;
 
   Class(
@@ -16,6 +17,7 @@ class Class {
     this.section,
     this.year,
     this.teacherId,
+    this.teacherName,
     this.sessions,
   );
 
@@ -25,6 +27,7 @@ class Class {
         section = map['section'],
         year = Student.getYear(map['year']),
         teacherId = map['teacher_id'],
+        teacherName = map['teacher_name'],
         sessions = map['sessions'];
 
   Map<String, dynamic> toMap() {
@@ -35,6 +38,7 @@ class Class {
       'section': section,
       'year': year.name,
       'teacher_id': teacherId,
+      'teacher_name': teacherName,
       'sessions': sessions,
     };
   }

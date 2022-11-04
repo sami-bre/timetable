@@ -71,4 +71,17 @@ class Converter {
     if (minute == 0) formattedMinute = "00";
     return '$formattedHour:$formattedMinute $amPm';
   }
+
+  static String integerToDay(int dayInt) {
+    var days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
+    return days[dayInt];
+  }
 }
