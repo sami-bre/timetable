@@ -161,6 +161,22 @@ class FirestoreHelper {
     return classes;
   }
 
+  static Stream<List<Class>> listenToClassesForATeacher(User user) async* {
+    // this function retreives updates continuously.
+    List<Class> classes;
+    await for (var data in FirebaseFirestore.instance
+        .collection('classes')
+        .where('teacher_id', isEqualTo: user.uid)
+        .snapshots()) {
+      classes = data.docs.map((e) => Class.fromMap(e.data())).toList();
+      // we assign the ids of the class documents as ids of the Class objects.
+      for (int i = 0; i < data.docs.length; i++) {
+        classes[i].id = data.docs[i].id;
+      }
+      yield classes;
+    }
+  }
+
   static Stream<List<Class>> listenToClassesForAStudent(User user) async* {
     // this function retreives updates continuously.
     List<Class> classes;
@@ -200,7 +216,8 @@ class FirestoreHelper {
         .doc(user.uid)
         .collection('tracked_classes')
         .doc(clas.id)
-        .set(clas.toMap()).onError((error, stackTrace) => print(stackTrace));
+        .set(clas.toMap())
+        .onError((error, stackTrace) => print(stackTrace));
   }
 
   static void unregisterAClassForAStudent(Class clas, User user) {
@@ -209,6 +226,31 @@ class FirestoreHelper {
         .doc(user.uid)
         .collection('tracked_classes')
         .doc(clas.id)
-        .delete().onError((error, stackTrace) => print(stackTrace));
+        .delete()
+        .onError((error, stackTrace) => print(stackTrace));
+  }
+
+  static Stream<List<Class>> listenForClasses(
+
+      /// yields lists of classes after applying filters to the firestore query
+      /// based on the given department and year. (if provided)
+      {Department? department,
+      Year? year,
+      String? section}) async* {
+    var query =
+        FirebaseFirestore.instance.collection('classes').where('department');
+    if (department != null) {
+      query = query.where('department', isEqualTo: department.name);
+    }
+    if (year != null) {
+      query = query.where('year', isEqualTo: year.name);
+    }
+    if (section != null) {
+      query = query.where('section', isEqualTo: section);
+    }
+    await for (var data in query.snapshots()) {
+      var classes = data.docs.map((e) => Class.fromMap(e.data())).toList();
+      yield classes;
+    }
   }
 }
