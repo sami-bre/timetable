@@ -68,7 +68,7 @@ class Converter {
       amPm = 'pm';
     }
     // formatting the minute
-    if (minute == 0) formattedMinute = "00";
+    if (minute < 10) formattedMinute = "0$minute";
     return '$formattedHour:$formattedMinute $amPm';
   }
 
