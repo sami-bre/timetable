@@ -10,26 +10,51 @@ import 'package:time_planner/time_planner.dart';
 import '../util/converter.dart';
 import 'drawer.dart';
 
-class TeacherHomePage extends StatefulWidget {
+class SectionView extends StatefulWidget {
   final User user;
+  Department? startDepartment;
+  Year? startYear;
+  String startSection = "";
 
-  const TeacherHomePage(this.user, {super.key});
+  SectionView(this.user,
+      {this.startDepartment,
+      this.startYear,
+      this.startSection = "",
+      super.key});
 
   @override
-  State<TeacherHomePage> createState() => _TeacherHomePageState();
+  State<SectionView> createState() => _SectionViewState();
 }
 
-class _TeacherHomePageState extends State<TeacherHomePage> {
+class _SectionViewState extends State<SectionView> {
   Department? displayedDepartment;
   Year? displayedYear;
   String displayedSection = "";
   Stream<List<Class>>? classesStream;
-  bool sectionView = false;
+  TextEditingController txtSection = TextEditingController();
 
   @override
   void initState() {
-    classesStream = FirestoreHelper.listenToClassesForATeacher(widget.user);
+    if (widget.startDepartment != null &&
+        widget.startYear != null &&
+        widget.startSection != "") {
+      displayedDepartment = widget.startDepartment;
+      displayedYear = widget.startYear;
+      displayedSection = widget.startSection;
+      txtSection.text = widget.startSection;
+      classesStream = FirestoreHelper.listenForClasses(
+        department: displayedDepartment,
+        year: displayedYear,
+        section: displayedSection,
+      );
+    }
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    txtSection.dispose();
+    super.dispose();
   }
 
   @override
@@ -37,68 +62,49 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     return Scaffold(
       drawer: const MyDrawer(),
       appBar: AppBar(
-        toolbarHeight: sectionView ? 130 : null,
-        title: !sectionView
-            ? const Text('My sessions')
-            : Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildDepartmentDropDownButton(),
-                      _buildYearDropDownButton()
-                    ],
+        toolbarHeight: 130,
+        title: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildDepartmentDropDownButton(),
+                _buildYearDropDownButton()
+              ],
+            ),
+            TextField(
+              controller: txtSection,
+              cursorColor: Theme.of(context).secondaryHeaderColor,
+              decoration: InputDecoration(
+                label: Text(
+                  'Section',
+                  style:
+                      TextStyle(color: Theme.of(context).secondaryHeaderColor),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).dividerColor,
                   ),
-                  TextField(
-                    cursorColor: Theme.of(context).secondaryHeaderColor,
-                    decoration: InputDecoration(
-                      label: Text(
-                        'Section',
-                        style: TextStyle(
-                            color: Theme.of(context).secondaryHeaderColor),
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Theme.of(context).dividerColor,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Theme.of(context).secondaryHeaderColor,
-                        ),
-                      ),
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: _handleSectionChange,
-                  )
-                ],
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).secondaryHeaderColor,
+                  ),
+                ),
               ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                bool temp;
-                if (sectionView) {
-                  temp = false;
-                  classesStream =
-                      FirestoreHelper.listenToClassesForATeacher(widget.user);
-                } else {
-                  temp = true;
-                  // in section view, the classesStream starts out being null and get's set
-                  // by the handlers of the year, department, and section widgets.
-                  classesStream = null;
-                }
-                setState(() {
-                  sectionView = temp;
-                });
-              },
-              icon: sectionView
-                  ? const Icon(Icons.view_carousel_rounded)
-                  : const Icon(Icons.list_alt_outlined))
-        ],
+              keyboardType: TextInputType.number,
+              onChanged: _handleSectionChange,
+            )
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: _buildTeacherTimeTable(),
+        child: _buildSectionTimeTable(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Text('...'),
       ),
     );
   }
@@ -171,7 +177,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     );
   }
 
-  Widget _buildTeacherTimeTable() {
+  Widget _buildSectionTimeTable() {
     return StreamBuilder(
       initialData: const <Class>[],
       stream: classesStream,

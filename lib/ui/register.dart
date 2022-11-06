@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:class_scheduler/ui/teacher_view.dart';
 import 'package:class_scheduler/util/authentication.dart';
 import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:email_validator/email_validator.dart';
@@ -7,7 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'student_home_page.dart';
-import 'teacher_home_page.dart';
+import 'section_view.dart';
 
 enum AuthMode { student, teacher }
 
@@ -261,7 +262,7 @@ class _RegisterpageState extends State<Registerpage> {
               // ignore: use_build_context_synchronously
               Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (context) =>
-                      TeacherHomePage(authentication.getUser()!)));
+                      TeacherView(authentication.getUser()!)));
             }
           } else {
             // we'll catch this down the road.

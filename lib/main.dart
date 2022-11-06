@@ -3,7 +3,8 @@ import 'package:class_scheduler/ui/class_catalog.dart';
 import 'package:class_scheduler/ui/register.dart';
 import 'package:class_scheduler/ui/sign_in.dart';
 import 'package:class_scheduler/ui/student_home_page.dart';
-import 'package:class_scheduler/ui/teacher_home_page.dart';
+import 'package:class_scheduler/ui/section_view.dart';
+import 'package:class_scheduler/ui/teacher_view.dart';
 import 'package:class_scheduler/util/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -71,19 +72,19 @@ class LaunchScreen extends StatefulWidget {
 }
 
 class _LaunchScreenState extends State<LaunchScreen> {
+
   void doRouting() {
     String? userId = Authentication().getUserId();
     if (userId != null) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) =>
             (Authentication().getUser()!.email!.toLowerCase().contains('aait'))
-                ? TeacherHomePage(Authentication().getUser()!)
+                ? TeacherView(Authentication().getUser()!)
                 : StudentHomePage(Authentication().getUser()!),
       ));
     } else {
       Navigator.of(context).pushReplacementNamed('/sign_in');
     }
-    super.initState();
   }
 
   @override
