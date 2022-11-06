@@ -66,7 +66,7 @@ class Authentication {
       Student student = Student(userName, email, department, year, section);
       // the uid of the account will be assigned to the 'id' field of the corresponding student document
       student.id = credential.user!.uid;
-      FirestoreHelper.addStudent(student, credential.user!);
+      FirestoreHelper.addStudent(student);
     }
     return credential.user?.uid;
   }

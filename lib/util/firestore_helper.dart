@@ -17,14 +17,17 @@ class FirestoreHelper {
   }
 
   static void addTeacher(Teacher teacher) {
-    FirebaseFirestore.instance.collection('teachers').add(teacher.toMap());
+    FirebaseFirestore.instance
+        .collection('teachers')
+        .doc(teacher.id!)
+        .set(teacher.toMap());
   }
 
-  static void addStudent(Student student, User user) {
+  static void addStudent(Student student) {
     // the id of the student document will be the uid of the corresponding user from firebase auth
     FirebaseFirestore.instance
         .collection('students')
-        .doc(user.uid)
+        .doc(student.id!)
         .set(student.tomap());
   }
 
@@ -77,13 +80,25 @@ class FirestoreHelper {
     }
   }
 
+  static Future<List<Teacher>> getAllTeachers() async {
+    var data =
+        (await FirebaseFirestore.instance.collection('teachers').get()).docs;
+    var teachers = data.map((e) => Teacher.fromMap(e.data())).toList();
+    // set the teacher ids
+    for (int i = 0; i < teachers.length; i++) {
+      teachers[i].id = data[i].id;
+    }
+    return teachers;
+  }
+
   static Future<void> populateRandomClassesTest() async {
     var randomClasses = <Class>[];
+    var teachers = await getAllTeachers();
     for (int i = 0; i < 20; i++) {
       int dep = Random().nextInt(5);
       int yer = Random().nextInt(5);
       int sec = Random().nextInt(6);
-      int teach = Random().nextInt(4);
+      int teach = Random().nextInt(teachers.length);
       randomClasses.add(
         Class(
           // the course
@@ -96,15 +111,9 @@ class FirestoreHelper {
           // the year
           Year.values[yer],
           // the teacher id
-          [
-            // these are the uids of currently registered teachers from firebase auth.
-            'zWLdgnXRQVOqOK2RLxm4xnZSGAt2',
-            '5KxMt3WwTIeyZACL294ud1M7cSK2',
-            'l1e9B4gjk6eOSe47FQrmCfww2Qw1',
-            '8jfxemznh4g58Ai9dWXsoSqxf8z1',
-          ][teach],
+          teachers.map((e) => e.id).toList()[teach]!,
           // the teacher name
-          ['kabila', 'nunyat', 'tedy', 'truwerk'][teach],
+          teachers.map((e) => e.name).toList()[teach],
           // the sessions
           Random().nextBool()
               ? [
