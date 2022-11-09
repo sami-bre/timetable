@@ -177,6 +177,7 @@ class FirestoreHelper {
         .collection('classes')
         .where('teacher_id', isEqualTo: user.uid)
         .snapshots()) {
+      print("length: ${data.docs.length}");
       classes = data.docs.map((e) => Class.fromMap(e.data())).toList();
       // we assign the ids of the class documents as ids of the Class objects.
       for (int i = 0; i < data.docs.length; i++) {
@@ -259,7 +260,29 @@ class FirestoreHelper {
     }
     await for (var data in query.snapshots()) {
       var classes = data.docs.map((e) => Class.fromMap(e.data())).toList();
+      // we assign the id of the documents as the id of the classes
+      for (int i = 0; i < data.docs.length; i++) {
+        classes[i].id = data.docs[i].id;
+      }
       yield classes;
     }
+  }
+
+  static Future<Teacher?> getTeacherDocument(User user) async {
+    var data = (await FirebaseFirestore.instance
+            .collection('teachers')
+            .doc(user.uid)
+            .get())
+        .data();
+    if (data == null) {
+      return null;
+    }
+    return Teacher.fromMap(data);
+  }
+
+  static Future<void> deleteTrackedsClasses(Class clas) async {
+    FirebaseFirestore.instance
+        .collectionGroup('tracked_classes')
+        .where('master', isEqualTo: 'dummy');
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:class_scheduler/models/class.dart';
+import 'package:class_scheduler/models/session.dart';
 import 'package:class_scheduler/ui/section_view.dart';
 import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -48,7 +49,7 @@ class _TeacherViewState extends State<TeacherView> {
       stream: FirestoreHelper.listenToClassesForATeacher(widget.user),
       builder: (context, snapshot) {
         var classes = snapshot.data ?? [];
-        var sessions = <TimePlannerTask>[];
+        var timePlannerTasks = <TimePlannerTask>[];
         for (Class clas in classes) {
           // the currently logged in teacher owns these classes
           Color classColor = Color.fromRGBO(
@@ -57,16 +58,16 @@ class _TeacherViewState extends State<TeacherView> {
             Random().nextInt(150) + 55,
             1.0,
           );
-          for (dynamic session in clas.sessions) {
-            sessions.add(
+          for (Session session in clas.sessions) {
+            timePlannerTasks.add(
               TimePlannerTask(
                 color: classColor,
                 dateTime: TimePlannerDateTime(
-                  day: session['day'],
-                  hour: session['start_hour'],
-                  minutes: session['start_minute'],
+                  day: session.day.index,
+                  hour: session.startTime.hour,
+                  minutes: session.startTime.minute,
                 ),
-                minutesDuration: session['duration_minute'],
+                minutesDuration: session.durationMinute,
                 child: _buildOwnSessionWidget(clas, session),
               ),
             );
@@ -89,13 +90,13 @@ class _TeacherViewState extends State<TeacherView> {
             TimePlannerTitle(title: "Saturday"),
             TimePlannerTitle(title: "Sunday"),
           ],
-          tasks: sessions,
+          tasks: timePlannerTasks,
         );
       },
     );
   }
 
-  _buildOwnSessionWidget(Class clas, session) {
+  _buildOwnSessionWidget(Class clas, Session session) {
     // one class many sessions
     return GestureDetector(
       // onLongPress: () => _showOptionsDialog(clas),
@@ -111,8 +112,8 @@ class _TeacherViewState extends State<TeacherView> {
               textAlign: TextAlign.center,
             ),
             subtitle: Text(
-              "${Converter.formattedTime(session['start_hour'], session['start_minute'])} - "
-              "${Converter.formattedTime(session['start_hour'], session['start_minute'] + session['duration_minute'])}",
+              "${session.startTime.format(context)} - "
+              "${Time(hour: session.startTime.hour, minute: session.startTime.minute + session.durationMinute).format(context)}",
               textAlign: TextAlign.center,
             ),
           ),
@@ -121,7 +122,7 @@ class _TeacherViewState extends State<TeacherView> {
     );
   }
 
-  void _showTeacherSessionAlertDialog(Class clas, dynamic session) {
+  void _showTeacherSessionAlertDialog(Class clas, Session session) {
     showDialog(
       context: context,
       builder: (context) {
@@ -135,8 +136,8 @@ class _TeacherViewState extends State<TeacherView> {
               Text('Year ${clas.year.name}'),
               Text('Section ${clas.section}'),
               Text(
-                "${Converter.formattedTime(session['start_hour'], session['start_minute'])} - "
-                "${Converter.formattedTime(session['start_hour'], session['start_minute'] + session['duration_minute'])}",
+                "${session.startTime.format(context)} - "
+                "${Time(hour: session.startTime.hour, minute: session.startTime.minute + session.durationMinute).format(context)}",
               ),
             ],
           ),

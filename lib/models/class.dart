@@ -1,6 +1,8 @@
 import 'package:class_scheduler/models/student.dart';
 import 'package:class_scheduler/ui/register.dart';
 
+import 'session.dart';
+
 class Class {
   String? id;
   String course;
@@ -9,7 +11,7 @@ class Class {
   String section;
   String teacherId;
   String teacherName;
-  List sessions;
+  late List<Session> sessions;
 
   Class(
     this.course,
@@ -18,8 +20,15 @@ class Class {
     this.year,
     this.teacherId,
     this.teacherName,
-    this.sessions,
-  );
+    List<Map<String, dynamic>> listOfSessionMaps,
+  ) {
+    sessions = makeSessionsFromMaps(listOfSessionMaps);
+  }
+
+  static List<Session> makeSessionsFromMaps(List<Map> listOfSessionMaps) {
+    var sessions = listOfSessionMaps.map((e) => Session.fromMap(e.cast<String, dynamic>())).toList();
+    return sessions;
+  }
 
   Class.fromMap(Map<String, dynamic> map)
       : course = map['course'],
@@ -28,7 +37,7 @@ class Class {
         year = Student.getYear(map['year']),
         teacherId = map['teacher_id'],
         teacherName = map['teacher_name'],
-        sessions = map['sessions'];
+        sessions = makeSessionsFromMaps(map['sessions'].cast<Map>());
 
   Map<String, dynamic> toMap() {
     return {
@@ -39,7 +48,7 @@ class Class {
       'year': year.name,
       'teacher_id': teacherId,
       'teacher_name': teacherName,
-      'sessions': sessions,
+      'sessions': sessions.map((e) => e.toMap()).toList(),
     };
   }
 }

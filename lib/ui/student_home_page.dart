@@ -1,12 +1,12 @@
 import 'dart:math';
 import 'package:class_scheduler/models/class.dart';
+import 'package:class_scheduler/models/session.dart';
 import 'package:class_scheduler/ui/class_catalog.dart';
 import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:time_planner/time_planner.dart';
 
-import '../util/converter.dart';
 import 'drawer.dart';
 
 class StudentHomePage extends StatefulWidget {
@@ -77,15 +77,15 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   Random().nextInt(150) + 55,
                   1.0,
                 );
-                for (dynamic session in clas.sessions) {
+                for (Session session in clas.sessions) {
                   tasks.add(
                     TimePlannerTask(
                       color: classColor,
                       dateTime: TimePlannerDateTime(
-                          day: session['day'],
-                          hour: session['start_hour'],
-                          minutes: session['start_minute']),
-                      minutesDuration: session['duration_minute'],
+                          day: session.day.index,
+                          hour: session.startTime.hour,
+                          minutes: session.startTime.minute),
+                      minutesDuration: session.durationMinute,
                       child: _buildSessionDisplay(clas, session),
                     ),
                   );
@@ -97,7 +97,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
     );
   }
 
-  Widget _buildSessionDisplay(Class clas, session) {
+  Widget _buildSessionDisplay(Class clas, Session session) {
     // one class many sessions
     return GestureDetector(
       onLongPress: () => _showOptionsDialog(clas),
@@ -109,8 +109,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
             textAlign: TextAlign.center,
           ),
           subtitle: Text(
-            "${Converter.formattedTime(session['start_hour'], session['start_minute'])} - "
-            "${Converter.formattedTime(session['start_hour'], session['start_minute'] + session['duration_minute'])}",
+            "${session.startTime.format(context)} - "
+            "${Time(hour: session.startTime.hour, minute: session.startTime.minute + session.durationMinute).format(context)}",
             textAlign: TextAlign.center,
           ),
         ),

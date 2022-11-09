@@ -1,16 +1,16 @@
-import 'package:class_scheduler/models/schedule.dart';
 import 'package:flutter/material.dart';
+import '../models/session.dart';
 
 class Converter {
-  static TimeOfDay stringToTimeOfDay(String time) {
-    /// input format should be:  hh:mm am
-    dynamic temp = time.split(':');
-    int hour = int.parse(temp[0]);
-    temp = temp[1].split(' ');
-    int minute = int.parse(temp[0]);
-    if (temp[1] == 'pm') hour += 12;
-    return TimeOfDay(hour: hour, minute: minute);
-  }
+  // static TimeOfDay stringToTimeOfDay(String time) {
+  //   /// input format should be:  hh:mm am
+  //   dynamic temp = time.split(':');
+  //   int hour = int.parse(temp[0]);
+  //   temp = temp[1].split(' ');
+  //   int minute = int.parse(temp[0]);
+  //   if (temp[1] == 'pm') hour += 12;
+  //   return TimeOfDay(hour: hour, minute: minute);
+  // }
 
   static stringToDayEnum(String day) {
     switch (day) {
@@ -32,17 +32,17 @@ class Converter {
     }
   }
 
-  static String timeOfDayToString(TimeOfDay tod) {
-    String amPm = 'am';
-    int hour = tod.hour;
-    dynamic minute = tod.minute;
-    if (hour > 12) {
-      amPm = 'pm';
-      hour -= 12;
-    }
-    if (minute == 0) minute = "00";
-    return "$hour:$minute $amPm";
-  }
+  // static String timeToString(Time tod) {
+  //   String amPm = 'am';
+  //   int hour = tod.hour;
+  //   dynamic minute = tod.minute;
+  //   if (hour > 12) {
+  //     amPm = 'pm';
+  //     hour -= 12;
+  //   }
+  //   if (minute == 0) minute = "00";
+  //   return "$hour:$minute $amPm";
+  // }
 
   static String formattedTime(int hour, int minute) {
     /// hour should be in [0,23]
@@ -72,7 +72,7 @@ class Converter {
     return '$formattedHour:$formattedMinute $amPm';
   }
 
-  static String integerToDay(int dayInt) {
+  static String integerToDayString(int dayInt) {
     var days = [
       'Monday',
       'Tuesday',
@@ -83,5 +83,26 @@ class Converter {
       'Sunday'
     ];
     return days[dayInt];
+  }
+
+  static Day integerToDayEnum(int dayInt) {
+    switch (dayInt) {
+      case 0:
+        return Day.monday;
+      case 1:
+        return Day.tuesday;
+      case 2:
+        return Day.wednesday;
+      case 3:
+        return Day.thursday;
+      case 4:
+        return Day.friday;
+      case 5:
+        return Day.saturday;
+      case 6:
+        return Day.sunday;
+      default:
+        throw Exception('invalid integer representing a day (not in [0-6])');
+    }
   }
 }

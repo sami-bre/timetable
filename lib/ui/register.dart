@@ -26,7 +26,6 @@ class Registerpage extends StatefulWidget {
 }
 
 class _RegisterpageState extends State<Registerpage> {
-  // TODO: RELEASE ALL THESE CONTROLLERS IN THE dispose METHOD
 
   TextEditingController txtEmail = TextEditingController();
   TextEditingController txtPassword = TextEditingController();

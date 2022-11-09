@@ -175,7 +175,7 @@ class _ClassCatalogState extends State<ClassCatalog> {
             for (dynamic session in clas.sessions) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text("${Converter.integerToDay(session['day'])}"
+                child: Text("${Converter.integerToDayString(session['day'])}"
                     "\nStarts at ${Converter.formattedTime(session['start_hour'], session['start_minute'])}"
                     "\nEnds at ${Converter.formattedTime(session['start_hour'], session['start_minute'] + session['duration_minute'])}"),
               ),

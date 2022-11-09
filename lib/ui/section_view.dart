@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:class_scheduler/models/class.dart';
+import 'package:class_scheduler/models/session.dart';
+import 'package:class_scheduler/ui/add_class_screen.dart';
 import 'package:class_scheduler/ui/register.dart';
 import 'package:class_scheduler/util/firestore_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -102,10 +104,18 @@ class _SectionViewState extends State<SectionView> {
         padding: const EdgeInsets.all(12),
         child: _buildSectionTimeTable(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Text('...'),
-      ),
+      floatingActionButton: (displayedDepartment != null &&
+              displayedYear != null &&
+              displayedSection != "")
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AddClassScreen(widget.user,
+                      displayedDepartment!, displayedYear!, displayedSection),
+                ));
+              },
+              child: const Icon(Icons.add_rounded))
+          : null,
     );
   }
 
@@ -194,16 +204,16 @@ class _SectionViewState extends State<SectionView> {
               Random().nextInt(150) + 55,
               1.0,
             );
-            for (dynamic session in clas.sessions) {
+            for (Session session in clas.sessions) {
               sessions.add(
                 TimePlannerTask(
                   color: classColor,
                   dateTime: TimePlannerDateTime(
-                    day: session['day'],
-                    hour: session['start_hour'],
-                    minutes: session['start_minute'],
+                    day: session.day.index,
+                    hour: session.startTime.hour,
+                    minutes: session.startTime.minute,
                   ),
-                  minutesDuration: session['duration_minute'],
+                  minutesDuration: session.durationMinute,
                   child: _buildOwnSessionWidget(clas, session),
                 ),
               );
@@ -211,16 +221,16 @@ class _SectionViewState extends State<SectionView> {
           } else {
             // the currently logged in teacher doesn't won these classes
             classColor = Colors.grey[350]!;
-            for (dynamic session in clas.sessions) {
+            for (Session session in clas.sessions) {
               sessions.add(
                 TimePlannerTask(
                   color: classColor,
                   dateTime: TimePlannerDateTime(
-                    day: session['day'],
-                    hour: session['start_hour'],
-                    minutes: session['start_minute'],
+                    day: session.day.index,
+                    hour: session.startTime.hour,
+                    minutes: session.startTime.minute,
                   ),
-                  minutesDuration: session['duration_minute'],
+                  minutesDuration: session.durationMinute,
                   child: _buildAlienSessionWidget(clas, session),
                 ),
               );
@@ -285,11 +295,11 @@ class _SectionViewState extends State<SectionView> {
         department: department, year: year, section: section);
   }
 
-  Widget _buildAlienSessionWidget(Class clas, session) {
+  Widget _buildAlienSessionWidget(Class clas, Session session) {
     // one class many sessions
     return GestureDetector(
       // TODO: implement different behaviors for owned and alien sessions
-      // onLongPress: () => _showOptionsDialog(clas),
+      onLongPress: () => _showAlienSessionOptionsDialog(clas),
       child: RotatedBox(
         quarterTurns: 3,
         child: ListTile(
@@ -298,8 +308,8 @@ class _SectionViewState extends State<SectionView> {
             textAlign: TextAlign.center,
           ),
           subtitle: Text(
-            "${Converter.formattedTime(session['start_hour'], session['start_minute'])} - "
-            "${Converter.formattedTime(session['start_hour'], session['start_minute'] + session['duration_minute'])}",
+            "${session.startTime.format(context)} - "
+            "${Time(hour: session.startTime.hour, minute: session.startTime.minute + session.durationMinute).format(context)}",
             textAlign: TextAlign.center,
           ),
         ),
@@ -307,10 +317,10 @@ class _SectionViewState extends State<SectionView> {
     );
   }
 
-  _buildOwnSessionWidget(Class clas, session) {
+  _buildOwnSessionWidget(Class clas, Session session) {
     // one class many sessions
     return GestureDetector(
-      // onLongPress: () => _showOptionsDialog(clas),
+      onLongPress: () => _showOwnSessionOptionsDialog(clas),
       child: RotatedBox(
         quarterTurns: 3,
         child: ListTile(
@@ -319,11 +329,44 @@ class _SectionViewState extends State<SectionView> {
             textAlign: TextAlign.center,
           ),
           subtitle: Text(
-            "${Converter.formattedTime(session['start_hour'], session['start_minute'])} - "
-            "${Converter.formattedTime(session['start_hour'], session['start_minute'] + session['duration_minute'])}",
+            "${session.startTime.format(context)} - "
+            "${Time(hour: session.startTime.hour, minute: session.startTime.minute + session.durationMinute).format(context)}",
             textAlign: TextAlign.center,
           ),
         ),
+      ),
+    );
+  }
+
+  _showAlienSessionOptionsDialog(Class clas) async {
+    showDialog(
+      context: context,
+      builder: (context) => Column(
+        children: [
+          TextButton(
+            onPressed: () {
+              // TODO: implement the get-address of a teacher functionality.
+            },
+            child: const Text("Get address of the teacher"),
+          )
+        ],
+      ),
+    );
+  }
+
+  _showOwnSessionOptionsDialog(Class clas) {
+    showDialog(
+      context: context,
+      builder: (context) => Column(
+        children: [
+          TextButton(
+            onPressed: () {
+              // TODO: implement the delete class functionality
+            },
+            child: const Text("Edit class"),
+          ),
+          TextButton(onPressed: () {}, child: const Text("Delete class"))
+        ],
       ),
     );
   }

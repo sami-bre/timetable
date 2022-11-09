@@ -22,7 +22,6 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: ADD AN ERROR MESSAGE WIDGET
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -84,7 +83,6 @@ class _SignInPageState extends State<SignInPage> {
 
   void submitForSignIn() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Authenticate the user
       try {
         String? userId =
             await Authentication().signIn(txtEmail.text, txtPassword.text);

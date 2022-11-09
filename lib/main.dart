@@ -11,7 +11,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 
-// TODO: enfore the rule that the duration of any schedule should not go into the next day.
 // TODO: override dispose methods here and there to close resourses and avoid memory leaks.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
