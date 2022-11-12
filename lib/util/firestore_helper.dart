@@ -287,4 +287,21 @@ class FirestoreHelper {
     }
     return Teacher.fromMap(data);
   }
+
+  static void deleteClass(Class clas) {
+    // we first delete all the subscriptions under the class
+    var batch = FirebaseFirestore.instance.batch();
+    FirebaseFirestore.instance
+        .collection('classes')
+        .doc(clas.id)
+        .collection('subscriptions')
+        .get()
+        .then((value) {
+      for (var element in value.docs) {
+        batch.delete(element.reference);
+      }
+    });
+    // then we delete the class
+    FirebaseFirestore.instance.collection('classes').doc(clas.id).delete();
+  }
 }

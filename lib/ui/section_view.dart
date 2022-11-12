@@ -357,16 +357,24 @@ class _SectionViewState extends State<SectionView> {
   _showOwnSessionOptionsDialog(Class clas) {
     showDialog(
       context: context,
-      builder: (context) => Column(
-        children: [
-          TextButton(
-            onPressed: () {
-              // TODO: implement the delete class functionality
-            },
-            child: const Text("Edit class"),
-          ),
-          TextButton(onPressed: () {}, child: const Text("Delete class"))
-        ],
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextButton(
+              onPressed: () {
+                // TODO: implement the edit class functinality
+              },
+              child: const Text("Edit class"),
+            ),
+            TextButton(
+                onPressed: () {
+                  FirestoreHelper.deleteClass(clas);
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Delete class"))
+          ],
+        ),
       ),
     );
   }
