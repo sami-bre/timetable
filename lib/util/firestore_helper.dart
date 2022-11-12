@@ -61,24 +61,25 @@ class FirestoreHelper {
     return classes;
   }
 
-  static Future<void> populateClassesUnderStudentsTest() async {
-    // this helper test method registers (tracks) all classes for all students. yikes!
-    var allClassesData =
-        (await FirebaseFirestore.instance.collection('classes').get()).docs;
-    for (var student
-        in (await FirebaseFirestore.instance.collection('students').get())
-            .docs) {
-      for (var clas
-          in (await FirebaseFirestore.instance.collection('classes').get())
-              .docs) {
-        FirebaseFirestore.instance
-            .collection('students')
-            .doc(student.id)
-            .collection('tracked_classes')
-            .add(clas.data());
-      }
-    }
-  }
+  // this code is obsolete in the new database structure
+  // static Future<void> populateClassesUnderStudentsTest() async {
+  //   // this helper test method registers (tracks) all classes for all students. yikes!
+  //   var allClassesData =
+  //       (await FirebaseFirestore.instance.collection('classes').get()).docs;
+  //   for (var student
+  //       in (await FirebaseFirestore.instance.collection('students').get())
+  //           .docs) {
+  //     for (var clas
+  //         in (await FirebaseFirestore.instance.collection('classes').get())
+  //             .docs) {
+  //       FirebaseFirestore.instance
+  //           .collection('students')
+  //           .doc(student.id)
+  //           .collection('tracked_classes')
+  //           .add(clas.data());
+  //     }
+  //   }
+  // }
 
   static Future<List<Teacher>> getAllTeachers() async {
     var data =
@@ -159,11 +160,10 @@ class FirestoreHelper {
   }
 
   static Future<List<Class>> getClassesForAStudent(User user) async {
-    // id function just makes a one time retrieval. it returns a future, not a stream.
+    // this method just makes a one time retrieval. it returns a future, not a stream.
     var raw = (await FirebaseFirestore.instance
-            .collection('students')
-            .doc(user.uid)
-            .collection('tracked_classes')
+            .collectionGroup('subscriptions')
+            .where('student_id', isEqualTo: user.uid)
             .get())
         .docs;
     var classes = raw.map((e) => Class.fromMap(e.data())).toList();
@@ -191,19 +191,19 @@ class FirestoreHelper {
     // this function retreives updates continuously.
     List<Class> classes;
     await for (var data in FirebaseFirestore.instance
-        .collection('students')
-        .doc(user.uid)
-        .collection('tracked_classes')
+        .collectionGroup('subscriptions')
+        .where('student_id', isEqualTo: user.uid)
         .snapshots()) {
       classes = data.docs.map((e) => Class.fromMap(e.data())).toList();
-      // we assign the ids of the class documents as ids of the Class objects.
-      for (int i = 0; i < data.docs.length; i++) {
-        classes[i].id = data.docs[i].id;
-      }
+      print('fetched first id: ${classes[0].toMap()}');
+      // we're fetching subscriptions here so they already have their ids set to the
+      // ids of the master documents. that's what we want.
       yield classes;
     }
   }
 
+  // these method is also absolete cause it doesn't filter conditionally.
+  // also, it's a one time fetch. not a stream subscription.
   static Future<List<Class>> getClasses(
       Department department, Year year) async {
     var raw = (await FirebaseFirestore.instance
@@ -217,25 +217,31 @@ class FirestoreHelper {
     for (int i = 0; i < raw.length; i++) {
       classes[i].id = raw[i].id;
     }
+    print('got classes first id: ${classes[0].id}');
     return classes;
   }
 
-  static void registerAClassForAStudent(Class clas, User user) {
+  static void registerAStudentForAClass(Class clas, User user) {
+    // we set the student id of the class (now a subscription)
+    print('registering class with id: ${clas.id}');
+    clas.studentId = user.uid;
+    clas.masterId = clas.id;
     FirebaseFirestore.instance
-        .collection('students')
-        .doc(user.uid)
-        .collection('tracked_classes')
+        .collection('classes')
         .doc(clas.id)
+        .collection('subscriptions')
+        .doc(user.uid)
         .set(clas.toMap())
         .onError((error, stackTrace) => print(stackTrace));
   }
 
   static void unregisterAClassForAStudent(Class clas, User user) {
+    print("in unregister ${clas.toMap()}");
     FirebaseFirestore.instance
-        .collection('students')
+        .collection('classes')
+        .doc(clas.masterId)
+        .collection('subscriptions')
         .doc(user.uid)
-        .collection('tracked_classes')
-        .doc(clas.id)
         .delete()
         .onError((error, stackTrace) => print(stackTrace));
   }
@@ -244,9 +250,11 @@ class FirestoreHelper {
 
       /// yields lists of classes after applying filters to the firestore query
       /// based on the given department and year. (if provided)
-      {Department? department,
-      Year? year,
-      String? section}) async* {
+      {
+    Department? department,
+    Year? year,
+    String? section,
+  }) async* {
     var query =
         FirebaseFirestore.instance.collection('classes').where('department');
     if (department != null) {
@@ -278,11 +286,5 @@ class FirestoreHelper {
       return null;
     }
     return Teacher.fromMap(data);
-  }
-
-  static Future<void> deleteTrackedsClasses(Class clas) async {
-    FirebaseFirestore.instance
-        .collectionGroup('tracked_classes')
-        .where('master', isEqualTo: 'dummy');
   }
 }

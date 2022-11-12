@@ -5,6 +5,8 @@ import 'session.dart';
 
 class Class {
   String? id;
+  String? studentId;
+  String? masterId;
   String course;
   Department department;
   Year year;
@@ -26,7 +28,9 @@ class Class {
   }
 
   static List<Session> makeSessionsFromMaps(List<Map> listOfSessionMaps) {
-    var sessions = listOfSessionMaps.map((e) => Session.fromMap(e.cast<String, dynamic>())).toList();
+    var sessions = listOfSessionMaps
+        .map((e) => Session.fromMap(e.cast<String, dynamic>()))
+        .toList();
     return sessions;
   }
 
@@ -37,11 +41,15 @@ class Class {
         year = Student.getYear(map['year']),
         teacherId = map['teacher_id'],
         teacherName = map['teacher_name'],
+        studentId = map['student_id'],
+        masterId = map['master_id'],
         sessions = makeSessionsFromMaps(map['sessions'].cast<Map>());
 
   Map<String, dynamic> toMap() {
     return {
       if (id != null) 'id': id,
+      if (studentId != null) 'student_id': studentId,
+      if (masterId != null) 'master_id': masterId,
       'course': course,
       'department': department.name,
       'section': section,

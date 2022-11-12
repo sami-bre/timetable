@@ -55,7 +55,7 @@ class _ClassCatalogState extends State<ClassCatalog> {
                           trailing: IconButton(
                             icon: const Icon(Icons.add_rounded),
                             onPressed: () {
-                              FirestoreHelper.registerAClassForAStudent(
+                              FirestoreHelper.registerAStudentForAClass(
                                   classes![index], widget.user);
                             },
                           ),

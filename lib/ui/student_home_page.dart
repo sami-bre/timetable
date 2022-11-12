@@ -119,6 +119,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
   }
 
   void _showOptionsDialog(Class clas) {
+    print('in show options dialog: ${clas.toMap()}');
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
